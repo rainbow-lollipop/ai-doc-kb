@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_PASSWORD: dev  # 本地开发密码，仅限本机，别用到线上
+      POSTGRES_USER: dev      
+      POSTGRES_DB: aidockb    # 启动时自动建的库名，对应 .env 里的 DATABASE_URL
+    ports: ["5432:5432"]      # 映射到宿主机，Prisma 直接连 localhost:5432
+    volumes: [pgdata:/var/lib/postgresql/data]  # 数据持久化，重启容器不丢库
+    healthcheck:              # 健康检查：compose up 时能等到库真正就绪
+      test: ["CMD-SHELL", "pg_isready -U dev"]
+      interval: 3s
+      retries: 10
+  redis:
+      image: redis:7-alpine
+      ports: ["6379:6379"]
+volumes:
+  pgdata:
+    
