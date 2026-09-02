@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  createdAt       DateTime  @default(now())
+  memberships     WorkspaceMember[]
+  ownedWorkspaces Workspace[]  // 反向关系字段：Prisma 关系必须成对，缺了会报 missing an opposite relation field
+}
+
+model Workspace {
+  id        String      @id @default(cuid())
+  name      String
+  ownerId   String
+  owner     User        @relation(fields: [ownerId], references: [id])
+  createdAt DateTime    @default(now())
+  members   WorkspaceMember[]
+  documents Document[]
+}
+
+model WorkspaceMember {
+  workspaceId     String
+  userId          String
+  role            String      @default("owner")
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id])
+  user            User        @relation(fields: [userId], references: [id])
+
+  @@id([workspaceId, userId])
+}
+
+model Document {
+  id            String        @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id])
+  name          String
+  type          String
+  size          Int
+  status        String        @default("pending")
+  error         String?
+  uploadedBy    String
+  createdAt     DateTime      @default(now())
+
+  @@index([workspaceId, createdAt])
+}

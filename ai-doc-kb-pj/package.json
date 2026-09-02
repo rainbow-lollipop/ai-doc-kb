@@ -10,11 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@prisma/client": "^7.10.0",
+    "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "ioredis": "^6.0.0",
     "nuxt": "^4.5.2",
-    "prisma": "8.0.0-rc.12",
+    "prisma": "6.19.3",
     "vue": "^3.5.42",
     "vue-router": "^5.3.0",
     "zod": "^4.5.4"
