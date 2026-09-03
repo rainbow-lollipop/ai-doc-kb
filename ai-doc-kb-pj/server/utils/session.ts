@@ -30,6 +30,6 @@ export async function destroySession(event: H3Event) {
 
 export async function requireUser(event: H3Event) {
 	const user = await getSessionUser(event);
-	if (!user) throw new AppError("UNATHORIZED", 401, "未登录");
+	if (!user) throw new AppError("UNAUTHORIZED", 401, "未登录");
 	return user;
 }
