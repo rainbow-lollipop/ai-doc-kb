@@ -30,7 +30,7 @@ model WorkspaceMember {
   workspaceId     String
   userId          String
   role            String      @default("owner")
-  workspace       Workspace   @relation(fields: [workspaceId], references: [id])
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade) // 删工作区 -> 成员记录一起没了
   user            User        @relation(fields: [userId], references: [id])
 
   @@id([workspaceId, userId])
@@ -39,7 +39,7 @@ model WorkspaceMember {
 model Document {
   id            String        @id @default(cuid())
   workspaceId   String
-  workspace     Workspace     @relation(fields: [workspaceId], references: [id])
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade) // 删工作区 -> 文档一起没了
   name          String
   type          String
   size          Int
