@@ -42,4 +42,37 @@ describe("workspace", () => {
 		const e = await $fetch("/api/workspaces").catch((e: any) => e.data);
 		expect(e.code).toBe("UNAUTHORIZED");
 	});
+
+	it("renames workspace as owner", async () => {
+		const u = await registerAndGetCookie("ws-rename");
+		const api = makeApi(u.cookie);
+		const created = await api("/api/workspaces", {
+			method: "POST",
+			body: { name: "旧名" },
+		});
+		const patched = await api(`/api/workspaces/${created.data.id}`, {
+			method: "PATCH",
+			body: { name: "新名" },
+		});
+		expect(patched.data.name).toBe("新名");
+	});
+
+	it("deletes workspace; afterwards even owner gets 403", async () => {
+		const u = await registerAndGetCookie("ws-del");
+		const api = makeApi(u.cookie);
+		const ws = await api("/api/workspaces", {
+			method: "POST",
+			body: { name: "要删的" },
+		});
+		const wsId = ws.data.id;
+		const del = await api(`/api/workspaces/${wsId}`, {
+			method: "DELETE",
+		});
+		expect(del.ok).toBe(true);
+		// 工作区没了 -> 成员记录也被级联删了 -> 再访问就 403（文档级联在Task 6验证，因为 documents 路由要到Task4才支持指定工作区）
+		const again = await api(`/api/workspaces/${wsId}`, {
+			method: "DELETE",
+		}).catch((e: any) => e.data);
+		expect(again.code).toBe("FORBIDDEN");
+	});
 });
