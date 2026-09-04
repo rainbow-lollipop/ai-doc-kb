@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { defineApi } from "../../utils/api";
-import { requireMember } from "../../utils/tenant";
+import { defineApi } from "~~/server/utils/api";
+import { requireMember } from "~~/server/utils/tenant";
 
 const bodySchema = z.object({
 	name: z.string().min(1).max(200),

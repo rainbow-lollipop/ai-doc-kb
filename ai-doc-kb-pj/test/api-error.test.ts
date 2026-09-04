@@ -1,6 +1,6 @@
 // @vitest-environment nuxt
 import { describe, it, expect } from "vitest";
-import { AppError, ok } from "../server/utils/api";
+import { AppError, ok } from "~~/server/utils/api";
 
 describe("AppError", () => {
 	it("carries code and status", () => {

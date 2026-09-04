@@ -1,4 +1,4 @@
-import { defineApi } from "../../utils/api";
+import { defineApi } from "~~/server/utils/api";
 
 export default defineApi(async (event) => {
 	await destroySession(event);

@@ -1,5 +1,5 @@
-import { defineApi, AppError } from "../../utils/api";
-import { requireMember } from "../../utils/tenant";
+import { defineApi, AppError } from "~~/server/utils/api";
+import { requireMember } from "~~/server/utils/tenant";
 
 export default defineApi(async (event) => {
 	const id = getRouterParam(event, "id")!;

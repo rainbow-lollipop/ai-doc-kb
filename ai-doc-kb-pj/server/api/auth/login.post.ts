@@ -1,6 +1,6 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { defineApi, AppError } from "../../utils/api";
+import { defineApi, AppError } from "~~/server/utils/api";
 
 const bodySchema = z.object({
 	email: z.email(),

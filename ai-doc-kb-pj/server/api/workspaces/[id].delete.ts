@@ -1,5 +1,5 @@
-import { defineApi } from "../../utils/api";
-import { requireOwner } from "../../utils/tenant";
+import { defineApi } from "~~/server/utils/api";
+import { requireOwner } from "~~/server/utils/tenant";
 
 export default defineApi(async (event) => {
 	const m = await requireOwner(event, getRouterParam(event, "id")!);
