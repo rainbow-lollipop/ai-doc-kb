@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { defineApi } from "../../utils/api";
-import { requireUser } from "../../utils/session";
+import { requireMember } from "../../utils/tenant";
 
 const bodySchema = z.object({
 	name: z.string().min(1).max(200),
@@ -13,10 +13,9 @@ const bodySchema = z.object({
 });
 
 export default defineApi(async (event) => {
-	const user = await requireUser(event);
 	const body = bodySchema.parse(await readBody(event));
-	const member = await prisma.workspaceMember.findFirst({ where: { userId: user.id } });
-	if (!member) throw new Error("user without workspace"); // 注册时必建工作区，走到这属内部错误
+
+	const member = await requireMember(event);
 
 	return await prisma.document.create({
 		data: {
@@ -25,7 +24,7 @@ export default defineApi(async (event) => {
 			type: body.type,
 			size: body.size,
 			status: "pending",
-			uploadedBy: user.id,
+			uploadedBy: member.userId,
 		},
 	});
 });

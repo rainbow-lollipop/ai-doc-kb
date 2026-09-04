@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { defineApi, AppError } from "../../utils/api";
-import { requireUser } from "../../utils/session";
+import { defineApi } from "../../utils/api";
+import { requireMember } from "../../utils/tenant";
 
 const querySchema = z.object({
 	cursor: z.string().optional(),
@@ -8,11 +8,9 @@ const querySchema = z.object({
 });
 
 export default defineApi(async (event) => {
-	const user = await requireUser(event);
+	// 之前是 findFirst 随便拿第一个工作区，现在显式走租户守卫
+	const member = await requireMember(event);
 	const { cursor, limit } = querySchema.parse(getQuery(event));
-
-	const member = await prisma.workspaceMember.findFirst({ where: { userId: user.id } });
-	if (!member) throw new AppError("NOT_FOUND", 404, "没有工作区");
 
 	const rows = await prisma.document.findMany({
 		where: { workspaceId: member.workspaceId },

@@ -1,29 +1,20 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { setup, $fetch, fetch } from "@nuxt/test-utils/e2e";
-
-const email = `d-${Date.now()}@test.dev`;
-
-// $fetch 没有 cookie jar，需手动从注册响应取 sid，后续请求都带上
-let cookie = "";
-const api = (url: string, opts: Record<string, unknown> = {}) =>
-	$fetch(url, { ...opts, headers: { cookie, ...(opts.headers as object) } });
+import { registerAndGetCookie, makeApi, wsHeader } from "./helpers";
 
 await setup({ server: true });
 
 describe("documents", () => {
+	let api: ReturnType<typeof makeApi>;
+	let wsId: string;
 	let createdIds: string[] = [];
 
 	beforeAll(async () => {
-		// $fetch 没有raw，用 fetch（带 baseURL 的原生 fetch）读响应头
-		const res = await fetch("/api/auth/register", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, password: "password123" }),
-		});
-		cookie = res.headers
-			.getSetCookie()
-			.map((c) => c.split(";")[0])
-			.join(";");
+		const u = await registerAndGetCookie("doc");
+		api = makeApi(u.cookie, () => wsHeader(wsId));
+		// 注册自动建的默认工作区就是当前工作区
+		const list = await api(`/api/workspaces`);
+		wsId = list.data[0].id;
 	});
 
 	it("createds a document", async () => {

@@ -1,10 +1,9 @@
 import { defineApi, AppError } from "../../utils/api";
-import { requireUser } from "../../utils/session";
+import { requireMember } from "../../utils/tenant";
 
 export default defineApi(async (event) => {
-	const user = await requireUser(event);
 	const id = getRouterParam(event, "id")!;
-	const member = await prisma.workspaceMember.findFirst({ where: { userId: user.id } });
+	const member = await requireMember(event);
 
 	const doc = await prisma.document.findFirst({
 		where: { id, workspaceId: member?.workspaceId },

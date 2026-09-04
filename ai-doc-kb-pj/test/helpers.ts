@@ -9,6 +9,7 @@ export async function registerAndGetCookie(prefix: string) {
 		body: JSON.stringify({ email, password: "password123" }),
 	});
 	if (!res.ok) throw new Error(`register failed: ${res.status} ${await res.text()}`);
+	// console.error("jjjj", res.headers.getSetCookie());
 	const cookie = res.headers
 		.getSetCookie()
 		.map((c) => c.split(";")[0])
@@ -18,9 +19,11 @@ export async function registerAndGetCookie(prefix: string) {
 }
 
 // 造一个自动带 cookie 的 $fetch（tets-utils 的 $fetch 没有 cookie jar）
-export function makeApi(cookie: string) {
+// getHeaders：每次请求时惰性求值的默认头（如 x-workspace-id）
+// 传函数而不是对象，是因为调用时变量可能还没赋值（如 beforeAll 里才拿到 wsId）
+export function makeApi(cookie: string, getHeaders: () => Record<string, unknown> = () => ({})) {
 	return (url: string, opts: Record<string, unknown> = {}) =>
-		$fetch(url, { ...opts, headers: { cookie, ...(opts.headers as object) } });
+		$fetch(url, { ...opts, headers: { ...getHeaders(), cookie, ...(opts.headers as object) } });
 }
 
 // 把某个工作区 id 拼进请求头（requireMember 从这里读当前工作区）
