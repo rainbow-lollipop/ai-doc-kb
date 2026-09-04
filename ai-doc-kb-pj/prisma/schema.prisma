@@ -47,6 +47,21 @@ model Document {
   error         String?
   uploadedBy    String
   createdAt     DateTime      @default(now())
+  chunks        Chunk[]
 
   @@index([workspaceId, createdAt])
+}
+
+model Chunk {
+  id            String      @id @default(cuid())
+  documentId    String
+  document    Document    @relation(fields: [documentId], references: [id], onDelete: Cascade) // 删文档 -> 切片一起没
+  idx           Int       // 第几片，从 0 开始
+  content       String
+  // Prisma 不认识 vector 类型，用 Unsupported 声明：列由裸 SQL 迁移管理
+  // Prisma 不会动它：client 里不能直接读写，必须 $queryRaw/$executeRaw
+  embedding     Unsupported("vector(1536)")?
+  createdAt     DateTime    @default(now())
+  
+  @@unique([documentId, idx])   // 同文档内编号唯一：重跑管道按（documentId, idx）覆盖
 }
