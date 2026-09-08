@@ -4,6 +4,7 @@ import { promises as fs } from "node:fs";
 import { PDFParse } from "pdf-parse";
 import { chunkText } from "./chunk";
 import { useRedis } from "./redis";
+import { embeddingEnabled, embedTexts } from "./embedding";
 
 interface ParseJobData {
 	documentId: string;
@@ -50,6 +51,21 @@ export async function processParseJob(job: Job): Promise<void> {
 				data: pieces.map((content, idx) => ({ documentId, idx, content })),
 			});
 		});
+
+		// 向量化（可选：EMBEDDING_ENABLED=false 时跳过，管道照样通）
+		if (embeddingEnabled()) {
+			await progress({ step: "embedding", total: pieces.length });
+			const vectors = await embedTexts(pieces);
+			// pgvector 的文本字面量格式：[0.1,0.2,...]
+			// ponytail：逐条 UPDATE，一篇文档几十片没问题；篇均上千片再换批量 INSERT
+			for (let i = 0; i < pieces.length; i++) {
+				const literal = `[${vectors[i]!.join(",")}]`;
+				await prisma.$executeRaw`
+          UPDATE "Chunk" SET embedding = ${literal}::vector
+          WHERE "documentId" = ${documentId} AND "idx" = ${i}
+        `;
+			}
+		}
 
 		await progress({ step: "done", total: pieces.length });
 		await prisma.document.update({
