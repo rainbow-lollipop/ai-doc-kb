@@ -43,7 +43,7 @@ describe("retry and dead letter", () => {
 		const api = makeApi(u.cookie, () => wsHeader(wsId));
 
 		// 内容不是合法 pdf，但扩展名是 .pdf -> 解析必炸
-		const up = await api("/api/document/upload", {
+		const up = await api("/api/documents/upload", {
 			method: "POST",
 			body: (() => {
 				const form = new FormData();

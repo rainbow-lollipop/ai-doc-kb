@@ -5,6 +5,8 @@ import { PDFParse } from "pdf-parse";
 import { chunkText } from "./chunk";
 import { useRedis } from "./redis";
 import { embeddingEnabled, embedTexts } from "./embedding";
+// worker 进程没有 Nuxt 自动导入，prisma 必须显式导入（ Nitro 服务里则可以省略）
+import { prisma } from "./prisma";
 
 interface ParseJobData {
 	documentId: string;

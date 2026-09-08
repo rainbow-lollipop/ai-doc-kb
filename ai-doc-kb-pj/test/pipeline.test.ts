@@ -78,7 +78,7 @@ describe("parse pipeline", () => {
 		const raw = await useRedis().get(`progress:${up.data.id}`);
 		expect(raw).toBeTruthy();
 		expect(JSON.parse(raw!).step).toBe("done");
-	});
+	}, 30000);
 
 	it("re-parsing the same document does not duplicate chunks(idempotency)", async () => {
 		// 直接再投一次同一个任务，模拟 BullMQ 重试场景
@@ -101,5 +101,5 @@ describe("parse pipeline", () => {
 		const count = await prisma.chunk.count({ where: { documentId: doc.id } });
 		// 重新解析后切片数与第一次一致（先删后插），不是翻倍
 		expect(count).toBeGreaterThanOrEqual(2);
-	});
+	}, 30000); // 异步管道要等 worker 消费，默认 5s 超时不够
 });
