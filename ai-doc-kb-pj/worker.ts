@@ -1,9 +1,6 @@
 import { Worker } from "bullmq";
 import Redis from "ioredis";
-import { processParseJob } from "~~/server/utils/parse"; // Task5 实现，先占位
-
-// 占位 task5 替换真实实现
-export async function processParseJob(): Promise<void> {}
+import { processParseJob } from "~~/server/utils/parse";
 
 const connection = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
 	maxRetriesPerRequest: null,
